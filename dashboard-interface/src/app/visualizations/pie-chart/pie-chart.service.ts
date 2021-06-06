@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Elasticsearch } from '../../elasticsearch';
+//import { Elasticsearch } from '../../elasticsearch';
+import {DataService} from '../../data.service';
 import { MetricsService } from '../metrics/metrics.service';
 
 import { AggregationData } from '../../object-classes/aggregationData';
@@ -15,17 +16,18 @@ declare let bodybuilder: any;
 export class PieChartService {
 
 	constructor(
-		private _elasticCli: Elasticsearch,
+		//private _elasticCli: Elasticsearch,
+		private _dataService:DataService,
 		private _metricsService: MetricsService
 	) { }
 
 	savePieChart(visualizationObj: VisualizationObj): void {
-		this._elasticCli.saveVisualization(visualizationObj);
+		this._dataService.saveVisualization(visualizationObj);
 	}
 
 	getResults(index: string, metric: AggregationData, buckets: AggregationData[]): PromiseLike<any> {
 		let body = this._getRequestBody(buckets, metric);
-		return this._elasticCli.request(index, body).then(response => {
+		return this._dataService.request(index, body).then(response => {
 			console.log('PIE CHART SERVICE - response:', response);
 			return this._getFormattedResults(response, this._getAggByIdMap(_.concat([metric], buckets)), metric)
 		});
@@ -152,20 +154,20 @@ export class PieChartService {
 		let body: any = bodybuilder();
 		for(let i=buckets.length-1; i>=0; i--){
 			console.log('PIE CHART SERVICE - bucket:', buckets[i]);
-			console.log('PIE CHART SERVICE - aggType:', this._elasticCli.getAggType(buckets[i]));
-			console.log('PIE CHART SERVICE - aggParams:', this._elasticCli.getAggParams(buckets[i]));
+			console.log('PIE CHART SERVICE - aggType:', this._dataService.getAggType(buckets[i]));
+			console.log('PIE CHART SERVICE - aggParams:', this._dataService.getAggParams(buckets[i]));
 			let nestedBody = body.aggregation(
-				this._elasticCli.getAggType(metric),
+				this._dataService.getAggType(metric),
 				null,
 				metric.id,
-				this._elasticCli.getAggParams(metric)
+				this._dataService.getAggParams(metric)
 			);
 			console.log('PIE CHART SERVICE - nestedBody:', body.build());
 			body = bodybuilder().aggregation(
-				this._elasticCli.getAggType(buckets[i]),
+				this._dataService.getAggType(buckets[i]),
 				null,
 				buckets[i].id,
-				this._elasticCli.getAggParams(buckets[i]),
+				this._dataService.getAggParams(buckets[i]),
 				(a) => nestedBody
 			);
 		}

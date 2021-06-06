@@ -7,7 +7,7 @@ import { AggregationData } from '../../object-classes/aggregationData';
 import { SearchSourceJSON } from '../../object-classes/searchSourceJSON';
 import { VisualizationObj } from '../../object-classes/visualizationObj';
 
-import { Elasticsearch } from '../../elasticsearch';
+//import { Elasticsearch } from '../../elasticsearch';
 import { MetricsService } from './metrics.service';
 import { VisualizationsService } from '../visualizations.service';
 
@@ -49,8 +49,8 @@ export class MetricsComponent {
 
 	constructor(
 		private _metricsService: MetricsService,
-		private _visualizationsService: VisualizationsService,
-		private _elasticCli: Elasticsearch
+		private _visualizationsService: VisualizationsService
+		//private _elasticCli: Elasticsearch
 	) {
 		this._subscribeToVisService();
 	}

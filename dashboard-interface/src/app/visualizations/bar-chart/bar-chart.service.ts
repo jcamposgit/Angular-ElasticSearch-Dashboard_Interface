@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Elasticsearch } from '../../elasticsearch';
+// import { Elasticsearch } from '../../elasticsearch';
+import{DataService} from '../../data.service'
 import { MetricsService } from '../metrics/metrics.service';
 
 import { AggregationData } from '../../object-classes/aggregationData';
@@ -15,17 +16,18 @@ declare let bodybuilder: any;
 export class BarChartService {
 
 	constructor(
-		private _elasticCli: Elasticsearch,
+		// private _elasticCli: Elasticsearch,
+		private _dataService:DataService,
 		private _metricsService: MetricsService
 	) { }
 
 	saveBarChart(visualizationObj: VisualizationObj): void {
-		this._elasticCli.saveVisualization(visualizationObj);
+		this._dataService.saveVisualization(visualizationObj);
 	}
 
 	getResults(index: string, metrics: AggregationData[], buckets: AggregationData[]): PromiseLike<any> {
 		let body = this._getRequestBody(buckets, metrics);
-		return this._elasticCli.request(index, body).then(response => {
+		return this._dataService.request(index, body).then(response => {
 			console.log('BAR CHART SERVICE - response:', response);
 			return this._getFormattedResults(response, this._getAggByIdMap(_.concat(metrics, buckets)), buckets[0], metrics);
 		});
@@ -148,14 +150,14 @@ export class BarChartService {
 		let body: any = this._getMetricsBody(metrics);
 		for(let i=buckets.length-1; i>=0; i--){
 			console.log('BAR CHART SERVICE - bucket:', buckets[i]);
-			console.log('BAR CHART SERVICE - aggType:', this._elasticCli.getAggType(buckets[i]));
-			console.log('BAR CHART SERVICE - aggParams:', this._elasticCli.getAggParams(buckets[i]));
+			console.log('BAR CHART SERVICE - aggType:', this._dataService.getAggType(buckets[i]));
+			console.log('BAR CHART SERVICE - aggParams:', this._dataService.getAggParams(buckets[i]));
 			console.log('BAR CHART SERVICE - body:', body.build());
 			body = bodybuilder().aggregation(
-				this._elasticCli.getAggType(buckets[i]),
+				this._dataService.getAggType(buckets[i]),
 				null,
 				buckets[i].id,
-				this._elasticCli.getAggParams(buckets[i]),
+				this._dataService.getAggParams(buckets[i]),
 				(a) => body
 			);
 		}
@@ -168,10 +170,10 @@ export class BarChartService {
 
 		for(let i=0; i<metrics.length; i++){
 			body = body.aggregation(
-				this._elasticCli.getAggType(metrics[i]),
+				this._dataService.getAggType(metrics[i]),
 				null,
 				metrics[i].id,
-				this._elasticCli.getAggParams(metrics[i])
+				this._dataService.getAggParams(metrics[i])
 			);
 		}
 

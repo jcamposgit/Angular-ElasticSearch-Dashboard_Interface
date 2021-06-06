@@ -104,7 +104,7 @@ export class Elasticsearch {
 
 	getSavedDashboards(): PromiseLike<any> {
 		return this.cli.search({
-				"index": '.sakura',
+				"index": '.sakura' +'dashboard',
 				"type": 'dashboard',
 				"body": {
 					"query": {
@@ -119,7 +119,7 @@ export class Elasticsearch {
 
 	getSavedVisualizations(): PromiseLike<any> {
 		return this.cli.search({
-				"index": '.sakura',
+				"index": '.sakura' + 'visualization',
 				"type": 'visualization',
 				"body": {
 					"query": {
@@ -159,7 +159,7 @@ export class Elasticsearch {
 		console.log('ELASTICSEARCH - SERVICE - type:', type);
 		console.log('ELASTICSEARCH - SERVICE - id:', id);
 		console.log('ELASTICSEARCH - SERVICE - body:', body);
-		let index = '.sakura';
+		let index = '.sakura'  + type;
 		return this.cli.create({
 			index: index,
 			type: type,
@@ -175,7 +175,7 @@ export class Elasticsearch {
 		console.log('ELASTICSEARCH - SERVICE - _deleteDoc()');
 		console.log('ELASTICSEARCH - SERVICE - type:', type);
 		console.log('ELASTICSEARCH - SERVICE - id:', id);
-		let index = '.sakura';
+		let index = '.sakura' + type;
 		return this.cli.delete({
 			index: index,
 			type: type,
@@ -192,9 +192,9 @@ export class Elasticsearch {
 		console.log('ELASTICSEARCH - SERVICE - type:', type);
 		console.log('ELASTICSEARCH - SERVICE - id:', id);
 		console.log('ELASTICSEARCH - SERVICE - doc:', doc);
-			let index= '.sakura';
+			let index= '.sakura'+ type;
 		return this.cli.update({
-			index: '.sakura',
+			index: '.sakura' + type,
 			type: type,
 			id: id,
 			body: {
@@ -211,7 +211,7 @@ export class Elasticsearch {
 		console.log('body:', body);
 
 		return this.cli.search({
-				"index": '.sakura',
+				"index": '.sakura'+ type,
 				"type": type,
 				"body": body
 		}).then(function(response){
@@ -277,7 +277,7 @@ export class Elasticsearch {
 
 			// this is beacause the mapping field is different for
 			// each index, so we take the first field
-			var props = mappings[Object.keys(mappings)[0]].properties;
+			var props = mappings.properties.fields? mappings.properties.fields.properties : mappings.properties;
 
 			return props;
 		});
@@ -295,7 +295,7 @@ export class Elasticsearch {
 			//console.log(props);
 			console.log(mappings);
 			for(var propName in props){
-				if(['integer', 'long'].indexOf(props[propName].type)>=0){
+				if(['integer', 'long','float'].indexOf(props[propName].type)>=0){
 					//console.log(propName);
 					numProps.push(propName);
 				}
