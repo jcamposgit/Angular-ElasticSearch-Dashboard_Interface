@@ -8,7 +8,10 @@ declare let bodybuilder: any;
 @Injectable()
 export class DataService {
 
+<<<<<<< HEAD
 	//Ntml API url
+=======
+>>>>>>> 2836620921e34b92ba21619e8ca0b0254c434fd4
 	url="http://localhost:30014";
 	
 	constructor(private http:HttpClient){
