@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { DataService } from 'app/data.service';
 
-import { Elasticsearch } from '../../elasticsearch';
+//import { Elasticsearch } from '../../elasticsearch';
 
 import { AggregationData } from '../../object-classes/aggregationData';
 import { VisualizationObj } from '../../object-classes/visualizationObj';
@@ -8,15 +9,26 @@ import { VisualizationObj } from '../../object-classes/visualizationObj';
 @Injectable()
 export class MetricsService {
 
-	constructor( private _elasticCli: Elasticsearch ) {}
+	constructor( 
+		//private _elasticCli: Elasticsearch,
+		private _dataService: DataService ) {}
 
+	// saveMetric2(visualizationObj: VisualizationObj): void {
+	// 	this._elasticCli.saveVisualization(visualizationObj);
+	// }
 	saveMetric(visualizationObj: VisualizationObj): void {
-		this._elasticCli.saveVisualization(visualizationObj);
+		this._dataService.saveVisualization(visualizationObj);
 	}
 
+	// getAggsResults2(index: string, aggs: AggregationData[]): PromiseLike<any>{
+	// 	let body = this._elasticCli.getAggsBody(aggs);
+	// 	return this._elasticCli.request(index, body).then(response =>
+	// 		this._getResults(response, aggs)
+	// 	);
+	// }
 	getAggsResults(index: string, aggs: AggregationData[]): PromiseLike<any>{
-		let body = this._elasticCli.getAggsBody(aggs);
-		return this._elasticCli.request(index, body).then(response =>
+		let body = this._dataService.getAggsBody(aggs);
+		return this._dataService.request(index, body).then(response =>
 			this._getResults(response, aggs)
 		);
 	}
@@ -80,7 +92,7 @@ export class MetricsService {
 		console.log('METRICS SERVICE - response:', response);
 		return [{
 				label: 'Count',
-				result: (response.hits) ? response.hits.total : response.doc_count || '--'
+				result: (response.hits) ? response.hits.total.value : response.doc_count || '--'
 		}];
 	}
 

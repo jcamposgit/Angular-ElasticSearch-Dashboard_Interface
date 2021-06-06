@@ -5,6 +5,8 @@ import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AppRoutingModule } from './app-routing.module';
 //import { GridsterModule } from './dashboards/dashboard/gridster2/gridster.module';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import * as int from './interceptors/';
 
 import { AppComponent } from './app.component';
 import { VisualizationsComponent } from './visualizations/visualizations.component';
@@ -69,17 +71,24 @@ import { Collapse } from './shared/collapse.directive';
 		FormsModule,
 		ReactiveFormsModule,
 		HttpModule,
+		HttpClientModule,
 		ChartsModule,
 		FlexLayoutModule,
 		AppRoutingModule,
 		//GridsterModule
 	],
 	providers: [
+		{
+			provide: HTTP_INTERCEPTORS,
+			useClass: int.WinAuthInterceptor,
+			multi: true
+		  },
 		DataService,
 		Elasticsearch,
 		MetricsService,
 		VisualizationsService,
-		GridsterPrototypeService
+		GridsterPrototypeService,
+
 	],
 	bootstrap: [
 		AppComponent

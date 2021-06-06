@@ -4,8 +4,9 @@ import { GridsterItemComponent } from './gridster/gridster-item/gridster-item.co
 import { IGridsterOptions } from './gridster/IGridsterOptions';
 import { IGridsterDraggableOptions } from './gridster/IGridsterDraggableOptions';
 import { DynamicComponent } from '../../shared/dynamicComponent.component';
+import { DataService } from 'app/data.service';
 
-import { Elasticsearch } from '../../elasticsearch';
+//import { Elasticsearch } from '../../elasticsearch';
 
 declare var $: any;
 
@@ -80,7 +81,8 @@ export class DashboardComponent {
 	private _displaySavedVis = false;
 
 	constructor(
-		public _elasticsearch: Elasticsearch
+		//public _elasticsearch: Elasticsearch
+		public _dataService:DataService
 	) { }
 
 	ngOnInit(): any {
@@ -89,7 +91,7 @@ export class DashboardComponent {
 	}
 
 	private _deleteVis(title: string): void {
-		this._elasticsearch.deleteDoc('visualization', title).then(() => this._setSavedVisualizations());
+		this._dataService.deleteDoc('.sakuravisualization', title).then(() => this._setSavedVisualizations());
 	}
 
 	private _save(dashTitle: string): void {
@@ -101,7 +103,7 @@ export class DashboardComponent {
 			};
 
 			console.log('DASHBOARD COMPONENT - dashboardObj:', dashboardObj);
-			this._elasticsearch.saveDashboard(dashboardObj);
+			this._dataService.saveDashboard(dashboardObj);
 		}
 	}
 
@@ -131,7 +133,7 @@ export class DashboardComponent {
 
 	private _setSavedVisualizations(): void {
 		console.log('DASHBOARD COMPONENT - _setSavedVisualizations()');
-		this._elasticsearch.getSavedVisualizations().then(hits => {
+		this._dataService.getSavedVisualizations().then(hits => {
 			this._savedVisualizations = [];
 			for(let i=0; i<hits.length; i++){
 				this._savedVisualizations.push(hits[i]);

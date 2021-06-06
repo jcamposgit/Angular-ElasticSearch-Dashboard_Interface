@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Elasticsearch } from '../../elasticsearch';
+import {DataService} from '../../data.service'
 import { MetricsService } from '../metrics/metrics.service';
 
 import { AggregationData } from '../../object-classes/aggregationData';
@@ -13,30 +14,31 @@ declare let bodybuilder: any;
 export class DataTableService {
 
 	constructor(
-		private _elasticCli: Elasticsearch,
+		//private _elasticCli: Elasticsearch,
+		private _dataService:DataService,
 		private _metricsService: MetricsService
 	) { }
 
 	saveDataTable(visualizationObj: VisualizationObj): void {
-		this._elasticCli.saveVisualization(visualizationObj);
+		this._dataService.saveVisualization(visualizationObj);
 	}
 
 	getResults(index: string, metrics: AggregationData[], buckets: AggregationData[]): PromiseLike<any> {
 		let body = this._getRequestBody(buckets, metrics);
-		return this._elasticCli.request(index, body).then(response =>
+		return this._dataService.request(index, body).then(response =>
 			this._processResultsResponse(response, _.concat(metrics, buckets))
 		);
 	}
 
 	private _getRequestBody(buckets: AggregationData[], metrics: AggregationData[]): any {
-		let metricsBody = this._elasticCli.getAggsBody(metrics);
+		let metricsBody = this._dataService.getAggsBody(metrics);
 		let body = metricsBody;
 		for(let i=0; i<buckets.length; i++){
 			body = bodybuilder().aggregation(
-				this._elasticCli.getAggType(buckets[i]),
+				this._dataService.getAggType(buckets[i]),
 				null,
 				buckets[i].id,
-				this._elasticCli.getAggParams(buckets[i]),
+				this._dataService.getAggParams(buckets[i]),
 				(a) => body
 			);
 		}

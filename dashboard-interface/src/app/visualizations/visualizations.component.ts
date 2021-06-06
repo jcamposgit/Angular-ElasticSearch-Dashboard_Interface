@@ -6,13 +6,14 @@ import { DataTableComponent } from './data-table/dataTable.component';
 import { PieChartComponent } from './pie-chart/pieChart.component';
 import { BarChartComponent } from './bar-chart/bar-chart.component';
 
-import { Elasticsearch } from '../elasticsearch';
+//import { Elasticsearch } from '../elasticsearch';
 import { VisualizationsService } from './visualizations.service';
 
 import { AggregationData } from '../object-classes/aggregationData';
 import { VisualizationState } from '../object-classes/visualizationState';
 
 import { Collapse } from '../shared/collapse.directive';
+import { DataService } from 'app/data.service';
 
 @Component({
 	selector: 'visualizations',
@@ -49,7 +50,8 @@ export class VisualizationsComponent {
 	private _displayVisOpt = false;
 
 	constructor(
-		public _elasticsearch: Elasticsearch,
+		//public _elasticsearch: Elasticsearch,
+		private _dataService:DataService,
 		private _visualizationsService: VisualizationsService
 	) { }
 
@@ -91,8 +93,11 @@ export class VisualizationsComponent {
 		}
 	}
 
+	// private _deleteVis2(title: string): void {
+	// 	this._elasticsearch.deleteDoc('visualization', title).then(() => this._setSavedVisualizations());
+	// }
 	private _deleteVis(title: string): void {
-		this._elasticsearch.deleteDoc('visualization', title).then(() => this._setSavedVisualizations());
+		this._dataService.deleteDoc('.sakuravisualization', title).then(() => this._setSavedVisualizations());
 	}
 
 	private _destroyVis(): void {
@@ -165,8 +170,17 @@ export class VisualizationsComponent {
 		}
 	}
 
+	// private _setSavedVisualizations2(): void {
+	// 	this._elasticsearch.getSavedVisualizations().then(hits => {
+	// 		this.savedVisualizations = [];
+	// 		for(let i=0; i<hits.length; i++){
+	// 			this.savedVisualizations.push(hits[i]);
+	// 		}
+	// 		console.log('savedVisualizations', this.savedVisualizations);
+	// 	});
+	// }
 	private _setSavedVisualizations(): void {
-		this._elasticsearch.getSavedVisualizations().then(hits => {
+		this._dataService.getSavedVisualizations().then(hits => {
 			this.savedVisualizations = [];
 			for(let i=0; i<hits.length; i++){
 				this.savedVisualizations.push(hits[i]);
@@ -175,25 +189,53 @@ export class VisualizationsComponent {
 		});
 	}
 
+	// private _setIndexes2(): PromiseLike<any> {
+	// 	return this._elasticsearch.getIndices().then(indices => {
+	// 		this.indexes = indices;
+	// 		this._selectedIndex = (this.indexes.length>0) ? this.indexes[0] : '';
+	// 		this._setAllFields().then(() => this._sendFields());
+	// 	});
+	// }
 	private _setIndexes(): PromiseLike<any> {
-		return this._elasticsearch.getIndices().then(indices => {
+		return this._dataService.getIndices().then(indices => {
+
+			console.log("es indices");
+			console.log(indices);
 			this.indexes = indices;
 			this._selectedIndex = (this.indexes.length>0) ? this.indexes[0] : '';
 			this._setAllFields().then(() => this._sendFields());
 		});
 	}
-
+	// private _setAllFields2(): PromiseLike<void> {
+	// 	return this._elasticsearch.getAllFields(this._selectedIndex)
+	// 	.then((fields) => {
+	// 		console.log('VISUALIZATIONS - SETTED FIELDS:', fields);
+	// 		let numFields = [];
+	// 		let textFields = [];
+	// 		let fieldPrefix='fields.';
+	// 		for(let field in fields){
+	// 			if(['text'].indexOf(fields[field].type)>=0){
+	// 				textFields.push(fieldPrefix + field);
+	// 			}else if(['integer', 'long','float'].indexOf(fields[field].type)>=0){
+	// 				numFields.push(fieldPrefix + field);
+	// 			}
+	// 		}
+	// 		this.textFields = textFields;
+	// 		this.numFields = numFields;
+	// 	});
+	// }
 	private _setAllFields(): PromiseLike<void> {
-		return this._elasticsearch.getAllFields(this._selectedIndex)
+		return this._dataService.getAllFields(this._selectedIndex)
 		.then((fields) => {
 			console.log('VISUALIZATIONS - SETTED FIELDS:', fields);
 			let numFields = [];
 			let textFields = [];
+			let fieldPrefix='fields.';
 			for(let field in fields){
 				if(['text'].indexOf(fields[field].type)>=0){
-					textFields.push(field);
-				}else if(['integer', 'long'].indexOf(fields[field].type)>=0){
-					numFields.push(field);
+					textFields.push(fieldPrefix + field);
+				}else if(['integer', 'long','float'].indexOf(fields[field].type)>=0){
+					numFields.push(fieldPrefix + field);
 				}
 			}
 			this.textFields = textFields;

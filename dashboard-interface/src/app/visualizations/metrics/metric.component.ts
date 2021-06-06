@@ -30,6 +30,18 @@ export class MetricComponent {
 	@Input() index: string;
 	@Input() widgetMode: boolean = false;
 
+	private _numLabels: string[] = [];
+	@Input() set numLabels(numLabels: string[]) {
+		console.log('numLabels:', numLabels);
+		this._numLabels = numLabels;
+		if(numLabels && numLabels.length>0)
+			this.selectedLabel = numLabels[0];
+		this.dataChangeEvent();
+	};
+	get numLabels(): string[] {
+		return this._numLabels;
+	};
+
 	private _numFields: string[] = [];
 	@Input() set numFields(numFields: string[]) {
 		console.log('numFields:', numFields);
@@ -84,6 +96,7 @@ export class MetricComponent {
 		'cardinality', 'percentiles', 'percentile_ranks', 'top_hits'
 	];
 	selectedField: string = '';
+	selectedLabel: string = '';
 
 	private _displayed = false;
 
@@ -120,6 +133,7 @@ export class MetricComponent {
 		console.log('METRIC - load():', agg);
 		this.selectedAggregation = agg.type;
 		this.selectedField = (agg.params.field) ? agg.params.field : this._numFields[0];
+		this.selectedLabel = (agg.params.field) ? agg.params.label : this._numLabels[0];
 	}
 
 	isNumFieldAgg(): Boolean{

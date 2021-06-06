@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 
-import { Elasticsearch } from '../elasticsearch';
+//import { Elasticsearch } from '../elasticsearch';
+import {DataService} from '../data.service'
 
 @Component({
 	selector: 'dashboards',
@@ -18,7 +19,8 @@ export class DashboardsComponent {
 	private _savedDashboards: any[] = [];
 
 	constructor(
-		public _elasticsearch: Elasticsearch
+		//public _elasticsearch: Elasticsearch
+		public _dataService:DataService
 	) { }
 
 	ngOnInit(): void {
@@ -29,7 +31,7 @@ export class DashboardsComponent {
 	private _setSavedDashboards(): void {
 		console.log('DASHBOARDS COMPONENT - _setSavedVisualizations()');
 		this._savedDashboards = [];
-		this._elasticsearch.getSavedDashboards().then(hits => {
+		this._dataService.getSavedDashboards().then(hits => {
 			for(let i=0; i<hits.length; i++){
 				this._savedDashboards.push(hits[i]);
 			}
@@ -46,6 +48,6 @@ export class DashboardsComponent {
 	}
 
 	private _deleteDashboard(title: string): void {
-		this._elasticsearch.deleteDoc('dashboard', title).then(() => this._setSavedDashboards());
+		this._dataService.deleteDoc('.sakuradashboard', title).then(() => this._setSavedDashboards());
 	}
 }
