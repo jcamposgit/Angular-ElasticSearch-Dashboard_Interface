@@ -40,8 +40,9 @@ export class MetricsComponent {
 
 	private _subscriptions: Subscription[] = [];
 
-	metricEvents: Array<string> = [ 'remove', 'dataChange' ];
+	metricEvents: Array<string> = [ 'remove', 'dataChange','labelChange' ];
 	metricsMap: Map<string, AggregationData> = new Map<string, AggregationData>();
+	labelsMap: Map<string, string> = new Map<string, string>();
 
 	results: any = [];
 
@@ -67,12 +68,22 @@ export class MetricsComponent {
 			case 'dataChange':
 				this.onDataChange(event.uniqueId, event.data);
 				break;
+			case 'labelChange':
+				this.onLabelChange(event.uniqueId, event.data);
+				break;
 			case 'remove':
 				this._removeMetric(event.uniqueId);
 				break;
 			default:
 				console.error('ERROR: event name [' + event.name + '] not found.');
 		}
+	}
+
+	onLabelChange(uniqueId: string, label: string){
+		console.log('LABEL CHANGE FOR METRIC:', uniqueId);
+		console.log('LABEL:', label);
+
+		this.labelsMap.set(uniqueId, label);
 	}
 
 	onDataChange(uniqueId: string, data: any): void {
@@ -92,8 +103,12 @@ export class MetricsComponent {
 	private _getResults(): any[] {
 		//console.log('METRICS - this.results:', this.results);
 		let unwrappedResults = [];
+		
+		let labels=Array.from(this.labelsMap.values());
+		console.log(labels);
 		for(let i=0; i<this.results.length; i++){
 			for(let j=0; j<this.results[i].length; j++){
+				this.results[i][j].label=labels[i];
 				unwrappedResults.push(this.results[i][j]);
 			}
 		}
@@ -173,6 +188,7 @@ export class MetricsComponent {
 			let visualizationState = new VisualizationState();
 			visualizationState.title = visTitle;
 			visualizationState.type = 'metric';
+			visualizationState.labels=Array.from(this.labelsMap.values());
 			visualizationState.aggs = Array.from(this.metricsMap.values());
 			console.log(visualizationState);
 
@@ -190,21 +206,22 @@ export class MetricsComponent {
 		}
 	}
 
-	loadVis(aggs: AggregationData[]): void {
-		this.loadMetrics(aggs);
+	loadVis(aggs: AggregationData[],labels:string[]): void {
+		this.loadMetrics(aggs,labels);
 	}
 
-	loadMetrics(aggs: AggregationData[]): void {
+	loadMetrics(aggs: AggregationData[],labels?:string[]): void {
 		console.log('METRICS - loadSavedMetrics():', aggs);
 		this._removeAll();
 		for(let i=0; i<aggs.length; i++){
 			console.log('METRICS - LOAD METRIC:', aggs[i]);
-			this._addMetric(aggs[i]);
+			this._addMetric(aggs[i],labels[i]);
 		}
 		this._calculateMetrics();
 	}
 
-	private _addMetric(agg: AggregationData): void {
+
+	private _addMetric(agg: AggregationData,label?:string): void {
 		let inputs = {
 			index: this.index,
 			numFields: this._numFields,
@@ -223,9 +240,10 @@ export class MetricsComponent {
 		);
 
 		// update metric data with saved data
-		if(agg) this.dynamicComponents.setInputs(uniqueId, { savedData: agg });
+		if(agg) this.dynamicComponents.setInputs(uniqueId, { savedData: agg ,customLabel:label?label:''});
 
 		this.metricsMap.set(uniqueId, agg || newMetricCmp.getAggregationData());
+		this.labelsMap.set(uniqueId,label);
 	}
 
 	private _guidGenerator(): string {
@@ -239,6 +257,7 @@ export class MetricsComponent {
 		console.log('REMOVE:', uniqueId);
 		this.dynamicComponents.destroyCmp(uniqueId);
 		this.metricsMap.delete(uniqueId);
+		this.labelsMap.delete(uniqueId);
 	}
 
 	private _removeAll(): void {

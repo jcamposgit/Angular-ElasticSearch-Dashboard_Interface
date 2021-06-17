@@ -252,10 +252,10 @@ export class VisualizationsComponent {
 		if(searchSource.index!==this._selectedIndex){
 			this._selectedIndex = searchSource.index;
 		}
-		this._processVisType(visState.type, visState.aggs);
+		this._processVisType(visState.type, visState.aggs,visState.labels);
 	}
 
-	private _processVisType(type: string, aggs: AggregationData[]): void {
+	private _processVisType(type: string, aggs: AggregationData[],labels:string[]): void {
 		console.log('VISUALIZATIONS - TYPE:', type);
 		switch(type){
 			case 'metric':{
@@ -278,7 +278,7 @@ export class VisualizationsComponent {
 		this._setAllFields().then(() => {
 				this._sendFields();
 				this._displayVis();
-				this._visCmp.cmp.loadVis(aggs);
+				this._visCmp.cmp.loadVis(aggs,labels);
 		});
 	}
 

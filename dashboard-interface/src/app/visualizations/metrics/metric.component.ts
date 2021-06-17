@@ -25,22 +25,18 @@ export class MetricComponent {
 	private topHitMetricComponent: TopHitMetricComponent;
 
 	@Output() dataChange = new EventEmitter<AggregationData>();
+	@Output() labelChange = new EventEmitter<string>();
 	@Output() remove = new EventEmitter<any>();
 
 	@Input() index: string;
 	@Input() widgetMode: boolean = false;
 
-	private _numLabels: string[] = [];
-	@Input() set numLabels(numLabels: string[]) {
-		console.log('numLabels:', numLabels);
-		this._numLabels = numLabels;
-		if(numLabels && numLabels.length>0)
-			this.selectedLabel = numLabels[0];
-		this.dataChangeEvent();
-	};
-	get numLabels(): string[] {
-		return this._numLabels;
-	};
+	private _customLabel:string;
+	@Input() set customLabel(customLabel:string){
+		console.log('customLabel:',customLabel);
+		this._customLabel=customLabel;
+		this.labelChangeEvent();
+	}
 
 	private _numFields: string[] = [];
 	@Input() set numFields(numFields: string[]) {
@@ -118,6 +114,12 @@ export class MetricComponent {
 			this.dataChange.emit(aggregationData);
 		}
 	}
+	labelChangeEvent(): void {
+		console.log('METRIC - labelChangeEvent()');
+
+		this.labelChange.emit(this._customLabel);
+		
+	}
 
 	getAggregationData(): AggregationData {
 		var aggregationData = new AggregationData();
@@ -133,7 +135,6 @@ export class MetricComponent {
 		console.log('METRIC - load():', agg);
 		this.selectedAggregation = agg.type;
 		this.selectedField = (agg.params.field) ? agg.params.field : this._numFields[0];
-		this.selectedLabel = (agg.params.field) ? agg.params.label : this._numLabels[0];
 	}
 
 	isNumFieldAgg(): Boolean{

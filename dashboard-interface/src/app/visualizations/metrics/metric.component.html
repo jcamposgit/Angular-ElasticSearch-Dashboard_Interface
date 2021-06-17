@@ -30,7 +30,7 @@
 		</div>
 		<div class="metric-opt">
 			<span>Custom label:</span>
-			<input [(ngModel)]="selectedLabel" type="text" (change)="dataChangeEvent()">
+			<input [(ngModel)]="_customLabel" type="text" (change)="labelChangeEvent()">
 		</div>
 		<div *ngIf="_numFields.length>0 && isNumFieldAgg()" class="metric-opt">
 			<span>Field:</span>
